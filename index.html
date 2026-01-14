@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>心灵研究所 - 专业心理测试汇总</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#7C3AED', // 主紫
+                        secondary: '#A855F7', // 浅紫
+                        accent: '#C084FC', // 淡紫
+                        neutral: '#F8FAFC', // 背景白
+                        dark: '#1E1B4B', // 深色文本
+                        bgDark: '#0F172A', // 暗色背景
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        display: ['Poppins', 'Montserrat', 'sans-serif']
+                    },
+                    boxShadow: {
+                        'card': '0 4px 10px -2px rgba(124, 58, 237, 0.08), 0 2px 6px -2px rgba(124, 58, 237, 0.05)',
+                        'card-hover': '0 10px 20px -5px rgba(124, 58, 237, 0.1), 0 6px 12px -4px rgba(124, 58, 237, 0.08), 0 0 0 1px rgba(124, 58, 237, 0.08)',
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            /* 文字渐变 */
+            .text-gradient {
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+                background-image: linear-gradient(135deg, #7C3AED 0%, #C084FC 100%);
+                line-height: 1.2; /* 新增：确保文字行高适配，不被裁剪 */
+            }
+            /* 卡片悬停动画 - 手机端弱化动画，提升性能 */
+            .card-animate {
+                transition: all 0.3s ease;
+                transform: translateY(0) scale(1);
+                opacity: 0;
+            }
+            .card-animate.visible {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            .card-animate:hover {
+                transform: translateY(-4px) scale(1.01);
+                box-shadow: var(--tw-shadow-card-hover);
+            }
+            /* 按钮渐变 */
+            .btn-glass {
+                background: linear-gradient(135deg, rgba(124, 58, 237, 0.9) 0%, rgba(192, 132, 252, 0.9) 100%);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+            }
+            .btn-glass:hover {
+                background: linear-gradient(135deg, rgba(124, 58, 237, 1) 0%, rgba(192, 132, 252, 1) 100%);
+            }
+            /* 背景纹理 - 手机端简化，提升性能 */
+            .bg-texture {
+                background-image: 
+                    radial-gradient(rgba(124, 58, 237, 0.03) 1px, transparent 1px),
+                    radial-gradient(rgba(124, 58, 237, 0.02) 1px, transparent 1px);
+                background-size: 30px 30px;
+                background-position: 0 0, 15px 15px;
+            }
+            /* 骨架屏动画 */
+            .skeleton-pulse {
+                animation: skeleton-loading 1.5s ease-in-out infinite alternate;
+            }
+            @keyframes skeleton-loading {
+                0% { opacity: 0.6; }
+                100% { opacity: 1; }
+            }
+            /* 装饰元素动画 - 手机端禁用，提升性能 */
+            .float {
+                animation: none !important;
+            }
+            @keyframes float {
+                0% { transform: translateY(0px); }
+                50% { transform: translateY(-15px); }
+                100% { transform: translateY(0px); }
+            }
+            /* 自定义下拉框样式 */
+            .custom-select {
+                appearance: none;
+                -webkit-appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='%237C3AED'%3E%3Cpath d='M0 0l6 6 6-6z'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 15px center;
+            }
+            .dark .custom-select {
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='%23C084FC'%3E%3Cpath d='M0 0l6 6 6-6z'/%3E%3C/svg%3E");
+            }
+        }
+    </style>
+    <!-- 引入更美观的字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-neutral dark:bg-bgDark font-sans text-dark dark:text-white bg-texture min-h-screen transition-colors duration-500">
+    <!-- 装饰性背景元素 - 手机端隐藏 -->
+    <div class="fixed -top-20 -right-20 w-64 h-64 bg-primary/5 dark:bg-primary/10 rounded-full blur-3xl float hidden lg:block"></div>
+    <div class="fixed -bottom-32 -left-32 w-96 h-96 bg-secondary/5 dark:bg-secondary/10 rounded-full blur-3xl float float-delay-1 hidden lg:block"></div>
+    <div class="fixed top-1/2 left-1/4 w-48 h-48 bg-accent/5 dark:bg-accent/10 rounded-full blur-3xl float float-delay-2 hidden lg:block"></div>
+
+    <!-- 页面加载动画 -->
+    <div id="loader" class="fixed inset-0 bg-white dark:bg-bgDark z-50 flex items-center justify-center">
+        <div class="text-center px-4">
+            <div class="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center mb-6 skeleton-pulse">
+                <img src="https://i.imglt.com/20260114/88e2bc5d25427298b230f491ce434197.png" alt="图标" class="w-8 sm:w-10 h-8 sm:h-10 object-cover">
+            </div>
+            <h2 class="font-display font-semibold text-lg sm:text-xl text-gradient mb-2">心灵研究所</h2> <!-- 修改：增加mb-2，避免文字拥挤 -->
+            <p class="text-gray-500 dark:text-gray-400 mt-2 text-sm">正在加载测评中心...</p>
+        </div>
+    </div>
+
+    <!-- 顶部导航栏 - 核心修复：增加上下内边距，确保标题完整显示 -->
+    <header class="sticky top-0 z-40 bg-white/80 dark:bg-bgDark/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 transition-all duration-500 px-4 py-5 sm:py-6"> <!-- 修改：py从4改为5/sm:6，增加垂直空间 -->
+        <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <!-- 左上角标题 - 核心修复：调整对齐和内边距 -->
+            <div class="flex items-center py-1"> <!-- 新增：py-1，确保文字垂直空间充足 -->
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center mr-3 shadow-lg">
+                    <img src="https://i.imglt.com/20260114/88e2bc5d25427298b230f491ce434197.png" alt="心灵研究所图标" class="w-6 h-6 object-cover">
+                </div>
+                <h1 class="font-display font-bold text-xl sm:text-2xl text-gradient leading-tight"> <!-- 修改：font-size调整为text-xl sm:text-2xl，line-height改为leading-tight -->
+                    心灵研究所
+                </h1>
+            </div>
+            
+            <!-- 右侧功能区 - 手机端换行 -->
+            <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                <!-- 暗色模式切换按钮 - 手机端加大触控区域 -->
+                <button id="themeToggle" class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300">
+                    <i class="fa fa-moon-o dark:hidden text-lg"></i>
+                    <i class="fa fa-sun-o hidden dark:inline text-lg"></i>
+                </button>
+                
+                <!-- 更多测试按钮 - 手机端优化尺寸 -->
+                <a href="https://xhslink.com/m/genPHyd6j0" target="_blank" rel="noopener noreferrer" 
+                   class="btn-glass text-white px-5 py-3 rounded-full font-medium shadow-lg hover:shadow-xl transition-all duration-300 flex items-center text-sm">
+                    <i class="fa fa-plus-circle mr-2"></i>
+                    更多测试
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 搜索和筛选区 - 下拉筛选+搜索框同行 -->
+    <section class="py-4 bg-white/70 dark:bg-bgDark/70 backdrop-blur-sm border-b border-gray-200/30 dark:border-gray-700/30 transition-colors duration-500 px-4">
+        <div class="container mx-auto">
+            <div class="flex flex-row gap-3 w-full">
+                <!-- 搜索框 - 占主要宽度 -->
+                <div class="relative flex-1">
+                    <input type="text" id="searchInput" placeholder="搜索测试名称..." 
+                           class="w-full px-5 py-4 pl-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-gray-800/90 focus:outline-none focus:ring-2 focus:ring-primary/30 dark:focus:ring-accent/30 focus:border-transparent shadow-sm transition-all duration-300 text-base">
+                    <i class="fa fa-search absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 text-lg"></i>
+                </div>
+                
+                <!-- 下拉筛选框 - 固定宽度 -->
+                <div class="w-40 sm:w-48">
+                    <select id="categoryFilter" class="custom-select w-full px-5 py-4 pr-12 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/90 dark:bg-gray-800/90 focus:outline-none focus:ring-2 focus:ring-primary/30 dark:focus:ring-accent/30 focus:border-transparent shadow-sm transition-all duration-300 text-base text-gray-800 dark:text-gray-200">
+                        <option value="all">全部测试</option>
+                        <option value="personality">人格测试</option>
+                        <option value="emotion">情感测试</option>
+                        <option value="mental">心理健康</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 主内容区域 - 手机端适配 -->
+    <main class="container mx-auto px-4 py-6 relative z-10">
+        <!-- 页面说明 - 手机端优化 -->
+        <div class="text-center mb-8 max-w-full px-4">
+            <h2 class="text-xl sm:text-[clamp(1.4rem,2vw,1.8rem)] font-display font-semibold text-gray-800 dark:text-gray-100 mb-4">
+                专业心理测评工具合集
+            </h2>
+            <p class="text-gray-600 dark:text-gray-400 text-base leading-relaxed">
+                基于心理学原理打造的科学测试工具，帮助您更好地了解自我、探索内心世界，发现潜能与成长方向。
+            </p>
+        </div>
+
+        <!-- 测试链接网格 - 手机端优先1列，逐步适配 -->
+        <div id="testGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+            <!-- 001 MBTI人格测试 -->
+            <div class="test-card" data-category="personality" data-name="MBTI人格测试">
+                <a href="https://wwzdq.github.io/mbti-test/" target="_blank" rel="noopener noreferrer" 
+                   class="block bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 sm:p-7 card-animate border border-gray-100 dark:border-gray-700/50 overflow-hidden relative h-full">
+                    <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary dark:text-accent text-xs font-medium">001</div>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center mb-4">
+                        <i class="fa fa-user-o text-primary dark:text-accent text-lg sm:text-xl"></i>
+                    </div>
+                    <h3 class="font-display font-medium text-base sm:text-lg text-gray-800 dark:text-gray-100 mb-2">MBTI人格测试</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-4">荣格理论基础 · 职业适配分析</p>
+                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-500 pt-2 border-t border-gray-100 dark:border-gray-700/30">
+                        <i class="fa fa-eye mr-2"></i>
+                        <span class="view-count" data-key="mbti">12,589</span> 次访问
+                    </div>
+                </a>
+            </div>
+
+            <!-- 002 恋爱占有欲指数测试 -->
+            <div class="test-card" data-category="emotion" data-name="恋爱占有欲指数测试">
+                <a href="https://wwzdq.github.io/love-test/" target="_blank" rel="noopener noreferrer" 
+                   class="block bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 sm:p-7 card-animate border border-gray-100 dark:border-gray-700/50 overflow-hidden relative h-full">
+                    <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary dark:text-accent text-xs font-medium">002</div>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center mb-4">
+                        <i class="fa fa-heart text-primary dark:text-accent text-lg sm:text-xl"></i>
+                    </div>
+                    <h3 class="font-display font-medium text-base sm:text-lg text-gray-800 dark:text-gray-100 mb-2">恋爱占有欲指数测试</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-4">亲密关系 · 边界感知评估</p>
+                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-500 pt-2 border-t border-gray-100 dark:border-gray-700/30">
+                        <i class="fa fa-eye mr-2"></i>
+                        <span class="view-count" data-key="lovePossess">9,876</span> 次访问
+                    </div>
+                </a>
+            </div>
+
+            <!-- 003 SCL-90症状自测 -->
+            <div class="test-card" data-category="mental" data-name="SCL-90症状自测">
+                <a href="https://wwzdq.github.io/SCL-90-test/" target="_blank" rel="noopener noreferrer" 
+                   class="block bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 sm:p-7 card-animate border border-gray-100 dark:border-gray-700/50 overflow-hidden relative h-full">
+                    <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary dark:text-accent text-xs font-medium">003</div>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center mb-4">
+                        <i class="fa fa-stethoscope text-primary dark:text-accent text-lg sm:text-xl"></i>
+                    </div>
+                    <h3 class="font-display font-medium text-base sm:text-lg text-gray-800 dark:text-gray-100 mb-2">SCL-90症状自测</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-4">心理健康 · 综合症状评估</p>
+                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-500 pt-2 border-t border-gray-100 dark:border-gray-700/30">
+                        <i class="fa fa-eye mr-2"></i>
+                        <span class="view-count" data-key="scl90">8,451</span> 次访问
+                    </div>
+                </a>
+            </div>
+
+            <!-- 004 SAS焦虑自测 -->
+            <div class="test-card" data-category="mental" data-name="SAS焦虑自测">
+                <a href="https://wwzdq.github.io/SAS-test/" target="_blank" rel="noopener noreferrer" 
+                   class="block bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 sm:p-7 card-animate border border-gray-100 dark:border-gray-700/50 overflow-hidden relative h-full">
+                    <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary dark:text-accent text-xs font-medium">004</div>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center mb-4">
+                        <i class="fa fa-exclamation-triangle text-primary dark:text-accent text-lg sm:text-xl"></i>
+                    </div>
+                    <h3 class="font-display font-medium text-base sm:text-lg text-gray-800 dark:text-gray-100 mb-2">SAS焦虑自测</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-4">六维分析 · 情绪调节建议</p>
+                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-500 pt-2 border-t border-gray-100 dark:border-gray-700/30">
+                        <i class="fa fa-eye mr-2"></i>
+                        <span class="view-count" data-key="sasAnxiety">7,623</span> 次访问
+                    </div>
+                </a>
+            </div>
+
+            <!-- 005 童年缺爱指数（CLDI）测试 -->
+            <div class="test-card" data-category="mental" data-name="童年缺爱指数测试">
+                <a href="https://wwzdq.github.io/tnxf-test/" target="_blank" rel="noopener noreferrer" 
+                   class="block bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 sm:p-7 card-animate border border-gray-100 dark:border-gray-700/50 overflow-hidden relative h-full">
+                    <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary dark:text-accent text-xs font-medium">005</div>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center mb-4">
+                        <i class="fa fa-child text-primary dark:text-accent text-lg sm:text-xl"></i>
+                    </div>
+                    <h3 class="font-display font-medium text-base sm:text-lg text-gray-800 dark:text-gray-100 mb-2">童年缺爱指数测试</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-4">依恋理论 · 成长影响分析</p>
+                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-500 pt-2 border-t border-gray-100 dark:border-gray-700/30">
+                        <i class="fa fa-eye mr-2"></i>
+                        <span class="view-count" data-key="childhoodLove">10,124</span> 次访问
+                    </div>
+                </a>
+            </div>
+
+            <!-- 006 情商测试 -->
+            <div class="test-card" data-category="personality" data-name="情商测试">
+                <a href="https://wwzdq.github.io/qs-test/" target="_blank" rel="noopener noreferrer" 
+                   class="block bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 sm:p-7 card-animate border border-gray-100 dark:border-gray-700/50 overflow-hidden relative h-full">
+                    <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary dark:text-accent text-xs font-medium">006</div>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center mb-4">
+                        <i class="fa fa-smile-o text-primary dark:text-accent text-lg sm:text-xl"></i>
+                    </div>
+                    <h3 class="font-display font-medium text-base sm:text-lg text-gray-800 dark:text-gray-100 mb-2">情商测试</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-4">戈尔曼模型 · 情绪管理评估</p>
+                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-500 pt-2 border-t border-gray-100 dark:border-gray-700/30">
+                        <i class="fa fa-eye mr-2"></i>
+                        <span class="view-count" data-key="eqTest">11,345</span> 次访问
+                    </div>
+                </a>
+            </div>
+
+            <!-- 007 智商测试 -->
+            <div class="test-card" data-category="personality" data-name="智商测试">
+                <a href="https://wwzdq.github.io/zs-test/" target="_blank" rel="noopener noreferrer" 
+                   class="block bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 sm:p-7 card-animate border border-gray-100 dark:border-gray-700/50 overflow-hidden relative h-full">
+                    <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary dark:text-accent text-xs font-medium">007</div>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center mb-4">
+                        <i class="fa fa-lightbulb-o text-primary dark:text-accent text-lg sm:text-xl"></i>
+                    </div>
+                    <h3 class="font-display font-medium text-base sm:text-lg text-gray-800 dark:text-gray-100 mb-2">智商测试</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-4">多维智力 · 能力优势分析</p>
+                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-500 pt-2 border-t border-gray-100 dark:border-gray-700/30">
+                        <i class="fa fa-eye mr-2"></i>
+                        <span class="view-count" data-key="iqTest">13,872</span> 次访问
+                    </div>
+                </a>
+            </div>
+
+            <!-- 008 霍兰德职业兴趣测试 -->
+            <div class="test-card" data-category="personality" data-name="霍兰德职业兴趣测试">
+                <a href="https://wwzdq.github.io/hld-test/" target="_blank" rel="noopener noreferrer" 
+                   class="block bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 sm:p-7 card-animate border border-gray-100 dark:border-gray-700/50 overflow-hidden relative h-full">
+                    <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary dark:text-accent text-xs font-medium">008</div>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center mb-4">
+                        <i class="fa fa-briefcase text-primary dark:text-accent text-lg sm:text-xl"></i>
+                    </div>
+                    <h3 class="font-display font-medium text-base sm:text-lg text-gray-800 dark:text-gray-100 mb-2">霍兰德职业兴趣测试</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-4">人境匹配 · 职业发展参考</p>
+                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-500 pt-2 border-t border-gray-100 dark:border-gray-700/30">
+                        <i class="fa fa-eye mr-2"></i>
+                        <span class="view-count" data-key="hollandCareer">6,987</span> 次访问
+                    </div>
+                </a>
+            </div>
+
+            <!-- 009 潜在出轨指数测试 -->
+            <div class="test-card" data-category="emotion" data-name="潜在出轨指数测试">
+                <a href="https://wwzdq.github.io/cgzs-test/" target="_blank" rel="noopener noreferrer" 
+                   class="block bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 sm:p-7 card-animate border border-gray-100 dark:border-gray-700/50 overflow-hidden relative h-full">
+                    <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary dark:text-accent text-xs font-medium">009</div>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center mb-4">
+                        <i class="fa fa-warning text-primary dark:text-accent text-lg sm:text-xl"></i>
+                    </div>
+                    <h3 class="font-display font-medium text-base sm:text-lg text-gray-800 dark:text-gray-100 mb-2">潜在出轨指数测试</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-4">亲密关系 · 风险评估工具</p>
+                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-500 pt-2 border-t border-gray-100 dark:border-gray-700/30">
+                        <i class="fa fa-eye mr-2"></i>
+                        <span class="view-count" data-key="cheatPotential">15,678</span> 次访问
+                    </div>
+                </a>
+            </div>
+
+            <!-- 010 黑暗人格测试 -->
+            <div class="test-card" data-category="personality" data-name="黑暗人格测试">
+                <a href="https://wwzdq.github.io/harg-test/" target="_blank" rel="noopener noreferrer" 
+                   class="block bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 sm:p-7 card-animate border border-gray-100 dark:border-gray-700/50 overflow-hidden relative h-full">
+                    <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary dark:text-accent text-xs font-medium">010</div>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center mb-4">
+                        <i class="fa fa-moon-o text-primary dark:text-accent text-lg sm:text-xl"></i>
+                    </div>
+                    <h3 class="font-display font-medium text-base sm:text-lg text-gray-800 dark:text-gray-100 mb-2">黑暗人格测试</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-4">黑暗三角 · 人格特质评估</p>
+                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-500 pt-2 border-t border-gray-100 dark:border-gray-700/30">
+                        <i class="fa fa-eye mr-2"></i>
+                        <span class="view-count" data-key="darkPersonality">9,234</span> 次访问
+                    </div>
+                </a>
+            </div>
+
+            <!-- 011 多维人格魅力测评 -->
+            <div class="test-card" data-category="personality" data-name="多维人格魅力测评">
+                <a href="https://wwzdq.github.io/rgmi-test/" target="_blank" rel="noopener noreferrer" 
+                   class="block bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 sm:p-7 card-animate border border-gray-100 dark:border-gray-700/50 overflow-hidden relative h-full">
+                    <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary dark:text-accent text-xs font-medium">011</div>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center mb-4">
+                        <i class="fa fa-star-o text-primary dark:text-accent text-lg sm:text-xl"></i>
+                    </div>
+                    <h3 class="font-display font-medium text-base sm:text-lg text-gray-800 dark:text-gray-100 mb-2">多维人格魅力测评</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-4">社交魅力 · 综合能力评估</p>
+                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-500 pt-2 border-t border-gray-100 dark:border-gray-700/30">
+                        <i class="fa fa-eye mr-2"></i>
+                        <span class="view-count" data-key="charmAssessment">8,765</span> 次访问
+                    </div>
+                </a>
+            </div>
+
+            <!-- 012 异性魅力检测 -->
+            <div class="test-card" data-category="emotion" data-name="异性魅力检测">
+                <a href="https://wwzdq.github.io/yxml-test/" target="_blank" rel="noopener noreferrer" 
+                   class="block bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 sm:p-7 card-animate border border-gray-100 dark:border-gray-700/50 overflow-hidden relative h-full">
+                    <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary dark:text-accent text-xs font-medium">012</div>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center mb-4">
+                        <i class="fa fa-heartbeat text-primary dark:text-accent text-lg sm:text-xl"></i>
+                    </div>
+                    <h3 class="font-display font-medium text-base sm:text-lg text-gray-800 dark:text-gray-100 mb-2">异性魅力检测</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-4">吸引力 · 社交价值评估</p>
+                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-500 pt-2 border-t border-gray-100 dark:border-gray-700/30">
+                        <i class="fa fa-eye mr-2"></i>
+                        <span class="view-count" data-key="oppositeCharm">14,321</span> 次访问
+                    </div>
+                </a>
+            </div>
+
+            <!-- 013 婚姻质量检测（敬请期待） -->
+            <div class="test-card" data-category="emotion" data-name="婚姻质量检测">
+                <div class="bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-card p-5 sm:p-7 border border-gray-100 dark:border-gray-700/50 overflow-hidden relative opacity-80 h-full">
+                    <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 text-xs font-medium">013</div>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gray-50 dark:bg-gray-700/50 flex items-center justify-center mb-4">
+                        <i class="fa fa-ring text-gray-400 dark:text-gray-500 text-lg sm:text-xl"></i>
+                    </div>
+                    <h3 class="font-display font-medium text-base sm:text-lg text-gray-800 dark:text-gray-200 mb-2">婚姻质量检测</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-6">婚姻关系 · 满意度评估</p>
+                    <div class="inline-block px-4 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm font-medium">
+                        敬请期待
+                    </div>
+                </div>
+            </div>
+
+            <!-- 014 爱情基因检测（敬请期待） -->
+            <div class="test-card" data-category="emotion" data-name="爱情基因检测">
+                <div class="bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-card p-5 sm:p-7 border border-gray-100 dark:border-gray-700/50 overflow-hidden relative opacity-80 h-full">
+                    <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 text-xs font-medium">014</div>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gray-50 dark:bg-gray-700/50 flex items-center justify-center mb-4">
+                        <i class="fa fa-dna text-gray-400 dark:text-gray-500 text-lg sm:text-xl"></i>
+                    </div>
+                    <h3 class="font-display font-medium text-base sm:text-lg text-gray-800 dark:text-gray-200 mb-2">爱情基因检测</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-6">恋爱模式 · 基因倾向分析</p>
+                    <div class="inline-block px-4 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm font-medium">
+                        敬请期待
+                    </div>
+                </div>
+            </div>
+
+            <!-- 015 抑郁情绪检测（敬请期待） -->
+            <div class="test-card" data-category="mental" data-name="抑郁情绪检测">
+                <div class="bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-card p-5 sm:p-7 border border-gray-100 dark:border-gray-700/50 overflow-hidden relative opacity-80 h-full">
+                    <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 text-xs font-medium">015</div>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gray-50 dark:bg-gray-700/50 flex items-center justify-center mb-4">
+                        <i class="fa fa-cloud text-gray-400 dark:text-gray-500 text-lg sm:text-xl"></i>
+                    </div>
+                    <h3 class="font-display font-medium text-base sm:text-lg text-gray-800 dark:text-gray-200 mb-2">抑郁情绪检测</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-6">情绪状态 · 抑郁倾向评估</p>
+                    <div class="inline-block px-4 py-1.5 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 text-sm font-medium">
+                        敬请期待
+                    </div>
+                </div>
+            </div>
+
+            <!-- 016 恋爱脑测试 -->
+            <div class="test-card" data-category="emotion" data-name="恋爱脑测试">
+                <a href="https://wwzdq.github.io/lan-test/" target="_blank" rel="noopener noreferrer" 
+                   class="block bg-white dark:bg-gray-800 rounded-2xl shadow-card p-5 sm:p-7 card-animate border border-gray-100 dark:border-gray-700/50 overflow-hidden relative h-full">
+                    <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-primary/10 dark:bg-primary/20 flex items-center justify-center text-primary dark:text-accent text-xs font-medium">016</div>
+                    <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center mb-4">
+                        <i class="fa fa-cupid text-primary dark:text-accent text-lg sm:text-xl"></i>
+                    </div>
+                    <h3 class="font-display font-medium text-base sm:text-lg text-gray-800 dark:text-gray-100 mb-2">恋爱脑测试</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-xs sm:text-sm mb-4">恋爱模式 · 行为思维分析</p>
+                    <div class="flex items-center text-xs text-gray-500 dark:text-gray-500 pt-2 border-t border-gray-100 dark:border-gray-700/30">
+                        <i class="fa fa-eye mr-2"></i>
+                        <span class="view-count" data-key="loveBrain">16,987</span> 次访问
+                    </div>
+                </a>
+            </div>
+
+            <!-- 017 一大波测试正在路上（新增） -->
+            <div class="test-card" data-category="all" data-name="一大波测试正在路上">
+                <div class="bg-white/80 dark:bg-gray-800/80 rounded-2xl shadow-card p-5 sm:p-7 border border-gray-100 dark:border-gray-700/50 overflow-hidden relative opacity-80 h-full flex flex-col justify-center items-center text-center">
+                    <div class="absolute top-3 right-3 w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400 text-xs font-medium">017</div>
+                    <div class="w-12 h-12 rounded-xl bg-primary/5 dark:bg-primary/10 flex items-center justify-center mb-5">
+                        <i class="fa fa-rocket text-primary dark:text-accent text-xl"></i>
+                    </div>
+                    <h3 class="font-display font-medium text-lg text-gray-800 dark:text-gray-200 mb-3">一大波测试正在路上...</h3>
+                    <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">我们正在精心打磨更多优质测试</p>
+                    <p class="text-gray-500 dark:text-gray-400 text-xs">敬请持续关注 ✨</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 空状态提示 - 手机端优化 -->
+        <div id="emptyState" class="hidden text-center py-12 px-4">
+            <div class="inline-block p-6 sm:p-8 rounded-2xl bg-white/80 dark:bg-gray-800/80 shadow-lg mb-4">
+                <i class="fa fa-search text-4xl sm:text-5xl text-gray-400 dark:text-gray-500"></i>
+            </div>
+            <h3 class="text-lg sm:text-xl font-display font-medium text-gray-800 dark:text-gray-200 mb-3">未找到相关测试</h3>
+            <p class="text-gray-600 dark:text-gray-400 max-w-md mx-auto text-sm">请尝试更换关键词或选择不同的分类筛选，找到你感兴趣的心理测评</p>
+        </div>
+    </main>
+
+    <!-- 页脚 - 手机端优化 -->
+    <footer class="bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm border-t border-gray-200/30 dark:border-gray-700/30 py-6 mt-8 transition-colors duration-500 px-4">
+        <div class="container mx-auto text-center">
+            <p class="text-gray-600 dark:text-gray-400 text-sm mb-3">
+                <i class="fa fa-info-circle mr-2 text-primary dark:text-accent"></i> 本页面测试结果仅供参考，不构成专业诊断建议
+            </p>
+            <p class="text-gray-500 dark:text-gray-500 text-xs">
+                © 2026 心灵研究所 版权所有 | 基于心理学研究打造
+            </p>
+        </div>
+    </footer>
+
+    <!-- 回到顶部按钮 - 手机端加大触控区域 -->
+    <button id="backToTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" 
+            class="fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-br from-primary to-accent text-white shadow-xl flex items-center justify-center hover:shadow-2xl transition-all duration-300 opacity-0 invisible z-30">
+        <i class="fa fa-arrow-up text-lg"></i>
+    </button>
+
+    <script>
+        // 暗色模式切换功能
+        const themeToggle = document.getElementById('themeToggle');
+        const html = document.documentElement;
+        
+        // 初始化主题
+        if (localStorage.getItem('theme') === 'dark' || 
+            (!localStorage.getItem('theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
+        
+        // 切换主题
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            localStorage.setItem('theme', html.classList.contains('dark') ? 'dark' : 'light');
+        });
+
+        // 搜索和筛选功能 - 整合下拉筛选
+        const searchInput = document.getElementById('searchInput');
+        const categoryFilter = document.getElementById('categoryFilter');
+        const testCards = document.querySelectorAll('.test-card');
+        const testGrid = document.getElementById('testGrid');
+        const emptyState = document.getElementById('emptyState');
+        
+        // 绑定搜索和筛选事件
+        searchInput.addEventListener('input', filterTests);
+        categoryFilter.addEventListener('change', filterTests);
+        
+        // 筛选测试函数 - 整合搜索+下拉筛选
+        function filterTests() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const selectedCategory = categoryFilter.value;
+            let visibleCount = 0;
+            
+            testCards.forEach(card => {
+                const cardName = card.dataset.name.toLowerCase();
+                const cardCategory = card.dataset.category;
+                const matchesSearch = searchTerm === '' || cardName.includes(searchTerm);
+                const matchesCategory = selectedCategory === 'all' || cardCategory === selectedCategory;
+                
+                if (matchesSearch && matchesCategory) {
+                    card.style.display = 'block';
+                    visibleCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            if (visibleCount === 0) {
+                testGrid.classList.add('opacity-20');
+                emptyState.classList.remove('hidden');
+            } else {
+                testGrid.classList.remove('opacity-20');
+                emptyState.classList.add('hidden');
+            }
+        }
+
+        // 回到顶部按钮显示逻辑
+        const backToTop = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                backToTop.classList.remove('opacity-0', 'invisible');
+                backToTop.classList.add('opacity-100', 'visible');
+            } else {
+                backToTop.classList.add('opacity-0', 'invisible');
+                backToTop.classList.remove('opacity-100', 'visible');
+            }
+        });
+
+        // 访问量随机增加功能
+        function updateViewCounts() {
+            const randomIncrement = Math.floor(Math.random() * (35 - 13 + 1)) + 13;
+            
+            document.querySelectorAll('.view-count').forEach(el => {
+                const key = el.dataset.key;
+                let currentCount = localStorage.getItem(`viewCount_${key}`);
+                if (!currentCount) {
+                    currentCount = parseInt(el.textContent.replace(/,/g, ''));
+                } else {
+                    currentCount = parseInt(currentCount);
+                }
+                
+                const newCount = currentCount + randomIncrement;
+                localStorage.setItem(`viewCount_${key}`, newCount);
+                el.textContent = newCount.toLocaleString();
+            });
+        }
+
+        // 页面加载动画 + 访问量更新
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                loader.classList.add('opacity-0');
+                loader.style.transition = 'opacity 0.8s ease';
+                
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    
+                    const cards = document.querySelectorAll('.card-animate');
+                    cards.forEach((card, index) => {
+                        setTimeout(() => {
+                            card.classList.add('visible');
+                        }, 80 * index);
+                    });
+                    
+                    updateViewCounts();
+                }, 800);
+            }, 1000);
+        });
+
+        // 无障碍访问优化
+        document.querySelectorAll('a, button, select').forEach(el => {
+            el.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    el.click();
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
